@@ -16,10 +16,29 @@ namespace TProjects
         {
             Map lvl1 = new Map();
             lvl1.drawmap();
-            lvl1.drawline();
-            lvl1.bakemap();
-            lvl1.printmap();
-            Console.WriteLine(lvl1.fullmap);
+            while (true)
+            {
+                ConsoleKey Key = Console.ReadKey().Key;
+                if (Key != ConsoleKey.O)
+                {
+                    switch (Key)
+                    {
+                        case ConsoleKey.S:
+                            lvl1.move(MoveDirection.up); Console.SetCursorPosition(0, 0); lvl1.writemap();
+                            break;
+                        case ConsoleKey.W:
+                            lvl1.move(MoveDirection.down); Console.SetCursorPosition(0, 0); lvl1.writemap();
+                            break;
+                        case ConsoleKey.A:
+                            lvl1.move(MoveDirection.left); Console.SetCursorPosition(0, 0); lvl1.writemap();
+                            break;
+                        case ConsoleKey.D:
+                            lvl1.move(MoveDirection.right); Console.SetCursorPosition(0,0); lvl1.writemap();
+                            break;
+                    }
+                }
+                else break;
+            }
         }
     }
 }

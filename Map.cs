@@ -8,122 +8,120 @@ namespace TProjects
 {
     class Map
     {
-        public string fullmap;
-        private string name;
         private static int sizeY = 30;
         private static int sizeX = 100;
-        private int[,] xy = new int[sizeY, sizeX];
-
+        private int PlX;
+        private int PlY;
+        private int[,] map = new int[sizeY, sizeX];
         public void drawmap()
-        { 
-            Random idRandom = new Random();
-            for (int i = 0; i < sizeY; i++)
-            {
-                for(int j = 0; j < sizeX; j++)
-                {
-                    xy[i, j] = idRandom.Next(0,2);
-                }
-            }
-        }
-        public void bakemap()
         {
-            //Объекты на карте
-            player wall = new player();
-            wall.createplayer('*', 1);
-            wall.type = "wall";
-            player space = new player();
-            space.createplayer(' ', 0);
-            space.type = "space";
-            player line = new player();
-            line.createplayer('#', -1);
-            line.type = "line";
+            //Создание объектов
+            Wall wall = new Wall();
+            wall.setobj(1, true, ListColor.cyan, "░");
+            Line mainline = new Line();
+            mainline.setobj(-1, true, ListColor.red, "░");
+            Space space = new Space();
+            space.setobj(0, false, ListColor.none, " ");
+            //Создание игрока
+            Player player = new Player();
+            player.setobj(2, true, ListColor.green, "☻");
 
-            //Применение текстур для объектов
+
+            //Создание обычной карты
+            drawobjects(space.getid(), wall.getid());
+            drawline(mainline.getid());
+            //Создание игрока
+            player.setX(randomX());
+            player.setY(randomY());
+            coordPlayer(player.getid(),player.getX(),player.getY());
+            writemap();
+        }
+        public void writemap() //Текстуры для карты
+        {
             for (int i = 0; i < sizeY; i++)
             {
                 for (int j = 0; j < sizeX; j++)
                 {
-                    switch (xy[i, j])
-                    {
-                        case 1:
-                            fullmap += wall.symbol;
-                            break;
-                        case 0:
-                            fullmap += space.symbol;
-                            break;
-                        case -1:
-                            fullmap += line.symbol;
-                            break;
-                    }
+                    DefualtObject.print(map[i, j]);
                 }
-            }
-
-            //Удобный вид карты
-        }
-        public void printmap()
-        {
-            char[] SymMap = new char[fullmap.Length];
-            int Iel = 0;
-            foreach(char el in fullmap)
-            {
-                SymMap[Iel] = el;
-                Iel++;
-            }
-            for(int i = 0; i < sizeY; i++)
-            {
-                for(int j = 0; j < sizeX; j++)
-                {
-                    switch(xy[i, j])
-                    {
-                        case -1:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write(SymMap[i*sizeX+j]);
-                        Console.ResetColor();
-                            break;
-                        default:
-                            Console.ResetColor();
-                            Console.Write(SymMap[i * sizeX + j]);
-                            Console.ResetColor();
-                            break;
-                        /*case 1:
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.Write(SymMap[i * sizeX + j]);
-                            Console.ResetColor();
-                            break;*/
-                    }
-                }
-                                    Console.Write("\n");
+                Console.Write('\n');
             }
         }
-        public void drawline()
+        private void drawline(int lineid)
         {
             for(int i = 0; i < sizeY; i++)
             {
-                xy[i, 0] = -1;
-                xy[i, sizeX-1] = -1;
+                map[i, 0] = lineid;
+                map[i, sizeX-1] = lineid;
             }
             for (int i = 0; i < sizeX; i++)
             {
-                xy[0, i] = -1;
-                xy[sizeY - 1, i] = -1;
+                map[0, i] = lineid;
+                map[sizeY - 1, i] = lineid;
             }
         }
+        private void drawobjects(int begid, int endid)
+        {
 
-    }
-    class player
-    {
-        public char symbol;
-        public int id;
-        public string type;
-        private static int[] arSymb = new int[30];
-        public player()
-        {
-            arSymb[id] = symbol;
+            //Создание объектов на карте
+            Random idRandom = new Random();
+            for (int i = 0; i < sizeY; i++)
+            {
+                for (int j = 0; j < sizeX; j++)
+                {
+                    map[i, j] = idRandom.Next(begid, endid+1);
+                }
+            }
         }
-        public void createplayer(char symbol, int id)
+        private int randomX()
         {
-            this.symbol = symbol;
-            this.id = id;
+            Random Random = new Random();
+            int x = Random.Next(1, sizeX-1);
+            return x;
         }
+        private int randomY()
+        {
+            Random Random = new Random();
+            int y = Random.Next(1, sizeY-1);
+            return y;
+        }
+
+        private void coordPlayer(int id, int x, int y)
+        {
+            map[y, x] = id;
+            PlX = x;
+            PlY = y;
+        }
+        public void move(MoveDirection direction)
+        {
+            int x = PlX;
+            int y = PlY;
+            int a = map[y, x];
+            switch (direction)
+            {
+                case MoveDirection.down: y--;break;
+                case MoveDirection.up: y++;break;
+                case MoveDirection.right: x++; break;
+                case MoveDirection.left: x--; break;
+            }
+
+            int b = map[y, x];
+            ListType info = DefualtObject.gettypeinfo(map[y, x]+1);
+            if (info == ListType.SPACE)
+            {
+                map[y, x] = a;
+                PlX = x;
+                PlY = y;
+                switch (direction)
+                {
+                    case MoveDirection.down: y++; break;
+                    case MoveDirection.up: y--; break;
+                    case MoveDirection.right: x--; break;
+                    case MoveDirection.left: x++; break;
+                }
+                map[y, x] = b;
+            } 
+        }
+
     }
 }
