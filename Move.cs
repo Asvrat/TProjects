@@ -6,18 +6,6 @@ using System.Threading.Tasks;
 
 namespace TProjects
 {
-    class PMove
-    {
-        private static MoveDirection direction;
-        public void setdirection(MoveDirection dir)
-        {
-            direction = dir;
-        }
-        public static MoveDirection getdirection()
-        {
-            return direction;
-        }
-    }
     enum MoveDirection
     {
         up,

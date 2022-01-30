@@ -18,6 +18,10 @@ namespace TProjects
             //Создание объектов
             Wall wall = new Wall();
             wall.setobj(1, true, ListColor.cyan, "░");
+            Wall wall2 = new Wall();
+            wall2.setobj(11, true, ListColor.cyan, "►");
+            Wall wall3 = new Wall();
+            wall3.setobj(12, true, ListColor.cyan, "¤");
             Line mainline = new Line();
             mainline.setobj(-1, true, ListColor.red, "░");
             Space space = new Space();
@@ -29,11 +33,12 @@ namespace TProjects
 
             //Создание обычной карты
             drawobjects(space.getid(), wall.getid());
+            drawObj(wall.getid(), space.getid(), randomX(sizeX - 2, sizeX - 1), randomY(sizeY - 2, sizeY - 1));
+            drawRail(wall2.getid(), space.getid(), player.getid(), randomX(sizeX-2, sizeX - 1), randomY(2, 2));
             drawline(mainline.getid());
             //Создание игрока
-            player.setX(randomX());
-            player.setY(randomY());
-            coordPlayer(player.getid(),player.getX(),player.getY());
+            //player.setX(randomX(1,sizeX - 1));
+            //player.setY(randomY(1, sizeY - 1));
             writemap();
         }
         public void writemap() //Текстуры для карты
@@ -65,24 +70,81 @@ namespace TProjects
 
             //Создание объектов на карте
             Random idRandom = new Random();
+            int a;
             for (int i = 0; i < sizeY; i++)
             {
                 for (int j = 0; j < sizeX; j++)
                 {
-                    map[i, j] = idRandom.Next(begid, endid+1);
+                    switch (idRandom.Next(1, 3))
+                    {
+                        case 2: a = begid;break;
+                        default: a = endid; break;
+                    }
+                    map[i, j] = a;
                 }
             }
         }
-        private int randomX()
+
+        private void drawRail(int id, int space, int plid, int Xsize, int Ysize)
+        {
+            int x = randomX(1, sizeX - Xsize);
+            int y = randomX(5, sizeY - Ysize-5);
+            for (int i = y; i <= y+Ysize; i++)
+            {
+                for (int j = x; j <= x+Xsize; j++)
+                {
+                    if (i == y+Math.Round(Convert.ToDouble(Ysize) / 2) && j == x)
+                    {
+                        coordPlayer(plid,j,i);
+                    }
+                    else if (i == y + Math.Round(Convert.ToDouble(Ysize) / 2) || j % 8 ==0 )
+                    {
+                        map[i, j] = space;
+                    }
+                    else map[i, j] = id;
+                }
+            }
+        }
+        private void drawObj(int id, int space, int Xsize, int Ysize)
+        {
+            int x = randomX(1, sizeX - Xsize);
+            int y = randomX(1, sizeY - Ysize);
+            int a;
+            for (int i = y; i <= y+Ysize; i++)
+            {
+                for (int j = x; j <= x+Xsize; j++)
+                {
+                    a = randomX(1, 3);
+                    switch (a)
+                    {
+                        case 1:
+                            if (j % 2 == 0 || j % 3 == 0)
+                            {
+                                map[i, j] = space;
+                            }
+                            else map[i, j] = id;
+                            break;
+                        case 2:
+                            if (i % 2 == 0 || i % 3 == 0)
+                            {
+                                map[i, j] = space;
+                            }
+                            else map[i, j] = id;
+                            break;
+                    }
+                }
+            }
+        }
+        private int randomX(int a, int b)
         {
             Random Random = new Random();
-            int x = Random.Next(1, sizeX-1);
+            int x = Random.Next(a, b);
             return x;
         }
-        private int randomY()
+        private int randomY(int a, int b)
         {
             Random Random = new Random();
-            int y = Random.Next(1, sizeY-1);
+            int y = Random.Next(a, b);
             return y;
         }
 
