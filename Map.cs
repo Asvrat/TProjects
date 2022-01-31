@@ -6,184 +6,237 @@ using System.Threading.Tasks;
 
 namespace TProjects
 {
-    class Map
+    internal class Map
     {
-        private static int sizeY = 30;
-        private static int sizeX = 100;
-        private int PlX;
-        private int PlY;
-        private int[,] map = new int[sizeY, sizeX];
-        public void drawmap()
+        private const int maxSizeX = 120;
+        private const int maxSizeY = 30;
+        private static int[,] map = new int[maxSizeX + 2, maxSizeY + 2];
+
+        public void SetMap()
         {
-            //Создание объектов
             Wall wall = new Wall();
-            wall.setobj(1, true, ListColor.cyan, "░");
             Wall wall2 = new Wall();
-            wall2.setobj(11, true, ListColor.cyan, "►");
             Wall wall3 = new Wall();
-            wall3.setobj(12, true, ListColor.cyan, "¤");
-            Line mainline = new Line();
-            mainline.setobj(-1, true, ListColor.red, "░");
+            Wall wall4 = new Wall();
+            Wall wall5 = new Wall();
+            Wall wall6 = new Wall();
+            Wall wall7 = new Wall();
+            Redline redline = new Redline();
             Space space = new Space();
-            space.setobj(0, false, ListColor.none, " ");
-            //Создание игрока
-            Player player = new Player();
-            player.setobj(2, true, ListColor.green, "☻");
-
-
-            //Создание обычной карты
-            drawobjects(space.getid(), wall.getid());
-            drawObj(wall.getid(), space.getid(), randomX(sizeX - 2, sizeX - 1), randomY(sizeY - 2, sizeY - 1));
-            drawRail(wall2.getid(), space.getid(), player.getid(), randomX(sizeX-2, sizeX - 1), randomY(2, 2));
-            drawline(mainline.getid());
-            //Создание игрока
-            //player.setX(randomX(1,sizeX - 1));
-            //player.setY(randomY(1, sizeY - 1));
-            writemap();
+            wall.setObj(2, '░', ListColor.Yellow);
+            wall2.setObj(3, '╔', ListColor.Yellow);
+            wall3.setObj(4, '╚', ListColor.Yellow);
+            wall4.setObj(5, '╗', ListColor.Yellow);
+            wall5.setObj(6, '╝', ListColor.Yellow);
+            wall6.setObj(7, '║', ListColor.Yellow);
+            wall7.setObj(8, '═', ListColor.Yellow);
+            redline.setObj(1, '░', ListColor.Red);
+            space.setObj(0, ' ', ListColor.None);
+            drawmap(wall.getid(), space.getid(), redline.getid());
+            drawbox(wall2.getid(), space.getid(), space.getid());
+            spawnplayer(wall2.getid(), space.getid());
+            spawnenemy(wall2.getid(), space.getid(), 101);
+            spawnenemy(wall2.getid(), space.getid(), 102);
         }
-        public void writemap() //Текстуры для карты
+        public static void drawmap(int wall, int space, int redline)
         {
-            for (int i = 0; i < sizeY; i++)
+            for (int i = 0; i <= maxSizeX + 1; i++)
             {
-                for (int j = 0; j < sizeX; j++)
+                for (int j = 0; j <= maxSizeY + 1; j++)
                 {
-                    DefualtObject.print(map[i, j]);
-                }
-                Console.Write('\n');
-            }
-        }
-        private void drawline(int lineid)
-        {
-            for(int i = 0; i < sizeY; i++)
-            {
-                map[i, 0] = lineid;
-                map[i, sizeX-1] = lineid;
-            }
-            for (int i = 0; i < sizeX; i++)
-            {
-                map[0, i] = lineid;
-                map[sizeY - 1, i] = lineid;
-            }
-        }
-        private void drawobjects(int begid, int endid)
-        {
-
-            //Создание объектов на карте
-            Random idRandom = new Random();
-            int a;
-            for (int i = 0; i < sizeY; i++)
-            {
-                for (int j = 0; j < sizeX; j++)
-                {
-                    switch (idRandom.Next(1, 3))
+                    if (i == 0 || i == maxSizeX + 1 || j == 0 || j == maxSizeY + 1)
                     {
-                        case 2: a = begid;break;
-                        default: a = endid; break;
+                        map[i, j] = redline;
                     }
-                    map[i, j] = a;
-                }
-            }
-        }
-
-        private void drawRail(int id, int space, int plid, int Xsize, int Ysize)
-        {
-            int x = randomX(1, sizeX - Xsize);
-            int y = randomX(5, sizeY - Ysize-5);
-            for (int i = y; i <= y+Ysize; i++)
-            {
-                for (int j = x; j <= x+Xsize; j++)
-                {
-                    if (i == y+Math.Round(Convert.ToDouble(Ysize) / 2) && j == x)
-                    {
-                        coordPlayer(plid,j,i);
-                    }
-                    else if (i == y + Math.Round(Convert.ToDouble(Ysize) / 2) || j % 8 ==0 )
+                    else if (i % 2 == 0 || i % 3 == 0 || j % 2 == 0 || j % 3 == 0)
                     {
                         map[i, j] = space;
                     }
-                    else map[i, j] = id;
+                    else map[i, j] = wall;
                 }
             }
         }
-        private void drawObj(int id, int space, int Xsize, int Ysize)
+        public static void showmap()
         {
-            int x = randomX(1, sizeX - Xsize);
-            int y = randomX(1, sizeY - Ysize);
-            int a;
-            for (int i = y; i <= y+Ysize; i++)
+            for (int i = 0; i <= maxSizeY + 1; i++)
             {
-                for (int j = x; j <= x+Xsize; j++)
+                for (int j = 0; j <= maxSizeX + 1; j++)
                 {
-                    a = randomX(1, 3);
-                    switch (a)
+                    switch (Object.getcolfromid(map[j, i]))
                     {
-                        case 1:
-                            if (j % 2 == 0 || j % 3 == 0)
+                        case ListColor.Black:
                             {
-                                map[i, j] = space;
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
                             }
-                            else map[i, j] = id;
                             break;
-                        case 2:
-                            if (i % 2 == 0 || i % 3 == 0)
+                        case ListColor.Blue:
                             {
-                                map[i, j] = space;
+                                Console.ForegroundColor = ConsoleColor.Blue;
                             }
-                            else map[i, j] = id;
                             break;
+                        case ListColor.Green:
+                            {
+                                Console.ForegroundColor = ConsoleColor.Green;
+                            }
+                            break;
+                        case ListColor.Cyan:
+                            {
+                                Console.ForegroundColor = ConsoleColor.Cyan;
+                            }
+                            break;
+                        case ListColor.Red:
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                            }
+                            break;
+                        case ListColor.White:
+                            {
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                            break;
+                        case ListColor.Yellow:
+                            {
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                            }
+                            break;
+                        case ListColor.None:
+                            {
+                                Console.ResetColor();
+                            }
+                            break;
+                    }
+                    Console.Write(Object.getsymbfromid(map[j, i]));
+                }
+                Console.Write("\n");
+            }
+            Console.ResetColor();
+        }
+        public static int spawnplayer(int wall, int space)
+        {
+            Player player = new Player();
+            player.setObj(100, '☺', ListColor.Green);
+            drawbox(wall, space, player.getid());
+            return player.getid();
+        }
+        public static int spawnenemy(int wall, int space, int id)
+        {
+            Player enemy = new Player();
+            enemy.setObj(id, '☺', ListColor.Red);
+            drawbox(wall, space, enemy.getid());
+            return enemy.getid();
+        }
+        public static void drawbox(int wall2, int space, int entity)
+        {
+            Random randomX = new Random();
+            int size = 3;
+            int x = randomX.Next(1, maxSizeX - size);
+            int y = randomX.Next(1, maxSizeY - size);
+            int[] mas = new int[2];
+            for (int i = x; i <= x + size - 1; i++)
+            {
+                for (int j = y; j <= y + size - 1; j++)
+                {
+                    if (i == x && j == y)
+                    {
+                        map[i, j] = wall2;
+                    }
+                    else if (i == x && j == y + size - 1)
+                    {
+                        map[i, j] = wall2 + 1;
+                    }
+                    else if (i == x + size - 1 && j == y)
+                    {
+                        map[i, j] = wall2 + 2;
+                    }
+                    else if (i == x + size - 1 && j == y + size - 1)
+                    {
+                        map[i, j] = wall2 + 3;
+                    }
+                    else if (i == x + (size / 2) && j == y + (size / 2))
+                    {
+                        map[i, j] = entity;
+                    }
+                    else map[i, j] = space;
+                }
+            }
+        }
+        public static int searchX(int id)
+        {
+            int a = 0;
+            for (int i = 1; i <= maxSizeX; i++)
+            {
+                for (int j = 1; j <= maxSizeY; j++)
+                {
+                    if (map[i, j] == id)
+                    {
+                        a = i;
                     }
                 }
             }
+            return a;
         }
-        private int randomX(int a, int b)
+        public static int searchY(int id)
         {
-            Random Random = new Random();
-            int x = Random.Next(a, b);
-            return x;
-        }
-        private int randomY(int a, int b)
-        {
-            Random Random = new Random();
-            int y = Random.Next(a, b);
-            return y;
-        }
-
-        private void coordPlayer(int id, int x, int y)
-        {
-            map[y, x] = id;
-            PlX = x;
-            PlY = y;
-        }
-        public void move(MoveDirection direction)
-        {
-            int x = PlX;
-            int y = PlY;
-            int a = map[y, x];
-            switch (direction)
+            int a = 0;
+            for (int i = 1; i <= maxSizeX; i++)
             {
-                case MoveDirection.down: y--;break;
-                case MoveDirection.up: y++;break;
-                case MoveDirection.right: x++; break;
-                case MoveDirection.left: x--; break;
-            }
-
-            int b = map[y, x];
-            ListType info = DefualtObject.gettypeinfo(map[y, x]+1);
-            if (info == ListType.SPACE)
-            {
-                map[y, x] = a;
-                PlX = x;
-                PlY = y;
-                switch (direction)
+                for (int j = 1; j <= maxSizeY; j++)
                 {
-                    case MoveDirection.down: y++; break;
-                    case MoveDirection.up: y--; break;
-                    case MoveDirection.right: x--; break;
-                    case MoveDirection.left: x++; break;
+                    if (map[i, j] == id)
+                    {
+                        a = j;
+                    }
                 }
-                map[y, x] = b;
-            } 
-        }
+            }
+            return a;
 
+        }
+        public static void move(int x, int y, MoveDirection dir)
+        {
+            int a;
+            switch (dir)
+            {
+                case MoveDirection.up:
+                    {
+                        if (Object.gettypefromid(map[x, y - 1]) == ListType.space)
+                        {
+                            a = map[x, y - 1];
+                            map[x, y - 1] = map[x, y];
+                            map[x, y] = a;
+                        }
+                    }
+                    break;
+                case MoveDirection.down:
+                    {
+                        if (Object.gettypefromid(map[x, y + 1]) == ListType.space)
+                        {
+                            a = map[x, y + 1];
+                            map[x, y + 1] = map[x, y];
+                            map[x, y] = a;
+                        }
+                    }
+                    break;
+                case MoveDirection.left:
+                    {
+                        if (Object.gettypefromid(map[x - 1, y]) == ListType.space)
+                        {
+                            a = map[x - 1, y];
+                            map[x - 1, y] = map[x, y];
+                            map[x, y] = a;
+                        }
+                    }
+                    break;
+                case MoveDirection.right:
+                    {
+                        if (Object.gettypefromid(map[x + 1, y]) == ListType.space)
+                        {
+                            a = map[x + 1, y];
+                            map[x + 1, y] = map[x, y];
+                            map[x, y] = a;
+                        }
+                    }
+                    break;
+            }
+        }
     }
 }
